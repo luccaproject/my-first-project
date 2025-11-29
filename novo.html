@@ -38,7 +38,7 @@
         <!-- Conteúdo do Header -->
         <div class="relative container mx-auto px-4 text-center z-10">
             <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight drop-shadow-xl text-white">
-                Oi Lucas
+                Minha Coleção
             </h1>
             <p class="text-gray-200 text-xl md:text-2xl font-light max-w-2xl mx-auto drop-shadow-md">
                 Uma curadoria de momentos capturados, memórias eternizadas e visões únicas do mundo.
@@ -56,8 +56,8 @@
             <!-- Imagem 1 -->
             <!-- Adicionei 'image-card', 'cursor-pointer' e movi o 'data-src' para cá -->
             <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-64 cursor-pointer" 
-                 data-src="kratos.jpg">
-                <img src="kratos.jpg" 
+                 data-src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                      alt="Paisagem Natural" 
                      class="w-full h-full object-cover transform transition duration-500 group-hover:scale-105">
                 <!-- Overlay -->
@@ -65,17 +65,17 @@
                     <div class="w-full flex justify-between items-center">
                         <p class="text-white font-bold">Natureza</p>
                         <!-- O botão agora é apenas visual (div) -->
-                        <!-- <div class="bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition backdrop-blur-sm">
+                        <div class="bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition backdrop-blur-sm">
                             <i data-lucide="expand" class="w-5 h-5"></i>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Imagem 2 -->
             <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-64 cursor-pointer" 
-                 data-src="lucas.jpeg">
-                <img src="lucas.jpeg" 
+                 data-src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                      alt="Cidade Urbana" 
                      class="w-full h-full object-cover transform transition duration-500 group-hover:scale-105">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
@@ -161,10 +161,19 @@
             <h3 class="text-2xl font-bold mb-2 font-serif">Seu Nome Aqui</h3>
             <p class="text-gray-400 mb-6 text-sm">© 2023 Todos os direitos reservados.</p>
             <div class="flex space-x-6">
-                <a href="https://www.instagram.com/flaviads25" class="hover:text-blue-400 transition transform hover:-translate-y-1"><i data-lucide="instagram" class="w-6 h-6"></i></a>
-                <a href="#" class="hover:text-blue-400 transition transform hover:-translate-y-1"><i data-lucide="twitter" class="w-6 h-6"></i></a>
-                <a href="mailto:email@exemplo.com" class="hover:text-blue-400 transition transform hover:-translate-y-1"><i data-lucide="mail" class="w-6 h-6"></i></a>
-                <a href="#" class="hover:text-blue-400 transition transform hover:-translate-y-1"><i data-lucide="phone" class="w-6 h-6"></i></a>
+                <!-- ADICIONADO: target="_blank" e links de exemplo. Substitua pelos seus! -->
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400 transition transform hover:-translate-y-1">
+                    <i data-lucide="instagram" class="w-6 h-6"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400 transition transform hover:-translate-y-1">
+                    <i data-lucide="twitter" class="w-6 h-6"></i>
+                </a>
+                <a href="mailto:email@exemplo.com" class="hover:text-blue-400 transition transform hover:-translate-y-1">
+                    <i data-lucide="mail" class="w-6 h-6"></i>
+                </a>
+                <a href="tel:+5511999999999" class="hover:text-blue-400 transition transform hover:-translate-y-1">
+                    <i data-lucide="phone" class="w-6 h-6"></i>
+                </a>
             </div>
         </div>
     </footer>
