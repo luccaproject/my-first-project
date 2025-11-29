@@ -10,6 +10,9 @@
     
     <!-- Ícones Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Supabase JS Library (Importante para conectar ao banco) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Fontes Google -->
     <style>
@@ -25,6 +28,21 @@
         
         /* Modal z-index */
         #imageModal { z-index: 100; }
+        
+        /* Loader simples */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #333;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body id="main-body" class="flex flex-col min-h-screen bg-gray-50 text-gray-800 transition-all duration-500">
@@ -36,13 +54,13 @@
         <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl fade-in">
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
-                <p class="text-gray-500">Cadastre-se para acessar a coleção.</p>
+                <p class="text-gray-500">Digite seus dados para conectar.</p>
             </div>
 
             <form id="access-form" class="space-y-5">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
-                    <input type="text" id="nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Como devemos te chamar?">
+                    <input type="text" id="nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Seu nome">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Telefone</label>
@@ -53,9 +71,10 @@
                     <input type="email" id="email" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="seu@email.com">
                 </div>
 
-                <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg">
-                    Entrar na Galeria
+                <button type="submit" id="btn-submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2">
+                    <span>Entrar na Galeria</span>
                 </button>
+                <p id="error-msg" class="text-red-500 text-sm text-center hidden"></p>
             </form>
         </div>
     </div>
@@ -185,6 +204,23 @@
 
     <!-- SCRIPTS INTEGRADOS -->
     <script>
+        // ==========================================================
+        // CONFIGURAÇÃO DO SUPABASE (COLE SUAS CHAVES AQUI)
+        // ==========================================================
+        
+        // Substitua 'https://xyzcompany.supabase.co' pela sua Project URL
+        const SUPABASE_URL = 'SUA_URL_DO_SUPABASE_AQUI'; 
+
+        // Substitua 'eyJxhjh...' pela sua API Key (anon public)
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bWdkenFwYW5zYmllaHNwaXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0Mzk5NDYsImV4cCI6MjA4MDAxNTk0Nn0.vrVgffEbng7zZjHrwoogUZYcuidTP4YWEelf9bhFlwE';
+
+        // Inicializa o cliente Supabase
+        // (Nota: Se você não preencher as chaves acima, o código não vai conectar)
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ==========================================================
+
         // 1. Inicializa Ícones
         lucide.createIcons();
 
@@ -194,10 +230,23 @@
         const accessForm = document.getElementById('access-form');
         const welcomeMessage = document.getElementById('welcome-message');
         const footerName = document.getElementById('footer-name');
+        const btnSubmit = document.getElementById('btn-submit');
+        const errorMsg = document.getElementById('error-msg');
         
-        // --- NOVA LÓGICA DE PERSISTÊNCIA ---
+        // --- LÓGICA DE BANCO DE DADOS (SUPABASE) ---
 
-        // Função para carregar a tela da galeria com o nome
+        // Função auxiliar para mostrar estado de carregamento
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `<div class="loader"></div> <span>Conectando...</span>`;
+            } else {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<span>Entrar na Galeria</span>`;
+            }
+        }
+
+        // Função para carregar a tela da galeria
         function loadGalleryScreen(nomeUsuario) {
             welcomeMessage.innerHTML = `Olá, <strong>${nomeUsuario}</strong>. Esta é sua curadoria exclusiva.`;
             footerName.textContent = nomeUsuario;
@@ -206,49 +255,86 @@
             gallerySection.classList.remove('hidden');
             gallerySection.classList.add('flex');
             
-            lucide.createIcons(); // Garante ícones
+            lucide.createIcons(); 
         }
 
-        // Verifica se já existe um usuário salvo no LocalStorage
-        const usuarioSalvo = localStorage.getItem('usuarioGaleria');
-        if (usuarioSalvo) {
-            const dadosUsuario = JSON.parse(usuarioSalvo);
-            loadGalleryScreen(dadosUsuario.nome);
+        // Verifica se há sessão local (para não pedir login toda hora se der F5)
+        const sessaoLocal = localStorage.getItem('usuarioSessao');
+        if (sessaoLocal) {
+            const usuario = JSON.parse(sessaoLocal);
+            loadGalleryScreen(usuario.nome);
         }
 
-        // 3. Lógica de Login (Agora Salvando Dados)
-        accessForm.addEventListener('submit', function(e) {
+        // Evento de Login/Cadastro
+        accessForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            errorMsg.classList.add('hidden');
             
+            // Validação simples: verificar se as chaves foram preenchidas
+            if (SUPABASE_URL.includes('SUA_URL') || SUPABASE_KEY.includes('SUA_CHAVE')) {
+                alert("Ops! Você precisa configurar as chaves do Supabase no código HTML antes de usar.");
+                return;
+            }
+
             const nome = document.getElementById('nome').value;
             const telefone = document.getElementById('telefone').value;
             const email = document.getElementById('email').value;
 
-            // Cria objeto com os dados
-            const dados = { nome, telefone, email };
+            setLoading(true);
 
-            // Salva no navegador (LocalStorage)
-            localStorage.setItem('usuarioGaleria', JSON.stringify(dados));
+            try {
+                // 1. Tenta buscar usuário pelo email
+                const { data: usuarioExistente, error: erroBusca } = await _supabase
+                    .from('usuarios')
+                    .select('*')
+                    .eq('email', email)
+                    .maybeSingle(); // Retorna 1 usuario ou null
 
-            // Carrega a tela
-            loadGalleryScreen(nome);
+                if (erroBusca) throw erroBusca;
+
+                let usuarioFinal;
+
+                if (usuarioExistente) {
+                    // SE EXISTE: Faz Login
+                    usuarioFinal = usuarioExistente;
+                    // (Opcional) Atualiza o nome se ele mudou
+                    if (usuarioExistente.nome !== nome) {
+                        await _supabase.from('usuarios').update({ nome: nome }).eq('email', email);
+                        usuarioFinal.nome = nome;
+                    }
+                } else {
+                    // SE NÃO EXISTE: Cria novo usuário
+                    const { data: novoUsuario, error: erroInsert } = await _supabase
+                        .from('usuarios')
+                        .insert([
+                            { nome: nome, telefone: telefone, email: email }
+                        ])
+                        .select()
+                        .single();
+
+                    if (erroInsert) throw erroInsert;
+                    usuarioFinal = novoUsuario;
+                }
+
+                // Sucesso! Salva sessão local e entra
+                localStorage.setItem('usuarioSessao', JSON.stringify(usuarioFinal));
+                loadGalleryScreen(usuarioFinal.nome);
+
+            } catch (error) {
+                console.error("Erro Supabase:", error);
+                errorMsg.textContent = "Erro ao conectar: " + (error.message || "Verifique sua conexão.");
+                errorMsg.classList.remove('hidden');
+            } finally {
+                setLoading(false);
+            }
         });
 
-        // Função de Logout (Agora limpando os dados)
         function logout() {
-            // Remove os dados do navegador
-            localStorage.removeItem('usuarioGaleria');
-
-            // Reseta a interface
-            gallerySection.classList.add('hidden');
-            gallerySection.classList.remove('flex');
-            loginSection.classList.remove('hidden');
-            accessForm.reset();
+            localStorage.removeItem('usuarioSessao');
+            location.reload(); // Recarrega para voltar ao estado inicial limpo
         }
 
-        // ------------------------------------
-
-        // 4. Lógica do Modal (Lightbox)
+        // --- Lógica do Modal (Mantida igual) ---
         const modal = document.getElementById('imageModal');
         const modalContainer = document.getElementById('modalImageContainer');
         const fullImage = document.getElementById('fullImage');
