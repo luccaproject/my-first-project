@@ -195,30 +195,58 @@
         const welcomeMessage = document.getElementById('welcome-message');
         const footerName = document.getElementById('footer-name');
         
-        // 3. Lógica de Login
-        accessForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nome = document.getElementById('nome').value;
+        // --- NOVA LÓGICA DE PERSISTÊNCIA ---
 
-            // Personaliza a galeria com o nome
-            welcomeMessage.innerHTML = `Olá, <strong>${nome}</strong>. Esta é sua curadoria exclusiva.`;
-            footerName.textContent = nome;
+        // Função para carregar a tela da galeria com o nome
+        function loadGalleryScreen(nomeUsuario) {
+            welcomeMessage.innerHTML = `Olá, <strong>${nomeUsuario}</strong>. Esta é sua curadoria exclusiva.`;
+            footerName.textContent = nomeUsuario;
 
-            // Troca de tela
             loginSection.classList.add('hidden');
             gallerySection.classList.remove('hidden');
-            gallerySection.classList.add('flex'); // Garante que a galeria use flexbox
+            gallerySection.classList.add('flex');
             
-            // Re-renderiza ícones caso necessário (segurança)
-            lucide.createIcons();
+            lucide.createIcons(); // Garante ícones
+        }
+
+        // Verifica se já existe um usuário salvo no LocalStorage
+        const usuarioSalvo = localStorage.getItem('usuarioGaleria');
+        if (usuarioSalvo) {
+            const dadosUsuario = JSON.parse(usuarioSalvo);
+            loadGalleryScreen(dadosUsuario.nome);
+        }
+
+        // 3. Lógica de Login (Agora Salvando Dados)
+        accessForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const telefone = document.getElementById('telefone').value;
+            const email = document.getElementById('email').value;
+
+            // Cria objeto com os dados
+            const dados = { nome, telefone, email };
+
+            // Salva no navegador (LocalStorage)
+            localStorage.setItem('usuarioGaleria', JSON.stringify(dados));
+
+            // Carrega a tela
+            loadGalleryScreen(nome);
         });
 
+        // Função de Logout (Agora limpando os dados)
         function logout() {
+            // Remove os dados do navegador
+            localStorage.removeItem('usuarioGaleria');
+
+            // Reseta a interface
             gallerySection.classList.add('hidden');
             gallerySection.classList.remove('flex');
             loginSection.classList.remove('hidden');
             accessForm.reset();
         }
+
+        // ------------------------------------
 
         // 4. Lógica do Modal (Lightbox)
         const modal = document.getElementById('imageModal');
