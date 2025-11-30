@@ -11,7 +11,7 @@
     <!-- Ícones Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Supabase JS Library (Importante para conectar ao banco) -->
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Fontes Google -->
@@ -21,22 +21,19 @@
         h1, h2, h3 { font-family: 'Playfair Display', serif; }
         body { font-family: 'Lato', sans-serif; }
         
-        /* Utilitários de transição */
+        /* Utilitários */
         .hidden { display: none !important; }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Modal z-index */
         #imageModal { z-index: 100; }
         
-        /* Loader simples */
+        /* Loader */
         .loader {
             border: 3px solid #f3f3f3;
             border-radius: 50%;
             border-top: 3px solid #333;
             width: 20px;
             height: 20px;
-            -webkit-animation: spin 1s linear infinite; /* Safari */
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -47,9 +44,7 @@
 </head>
 <body id="main-body" class="flex flex-col min-h-screen bg-gray-50 text-gray-800 transition-all duration-500">
 
-    <!-- =========================================
-         SEÇÃO 1: TELA DE LOGIN / BANCO DE DADOS
-         ========================================= -->
+    <!-- SEÇÃO 1: LOGIN -->
     <div id="login-section" class="flex-grow flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl fade-in">
             <div class="text-center mb-8">
@@ -57,6 +52,7 @@
                 <p class="text-gray-500">Digite seus dados para conectar.</p>
             </div>
 
+            <!-- Importante: O form usa onsubmit para garantir que o JS capture o evento -->
             <form id="access-form" class="space-y-5">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
@@ -74,117 +70,68 @@
                 <button type="submit" id="btn-submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2">
                     <span>Entrar na Galeria</span>
                 </button>
-                <p id="error-msg" class="text-red-500 text-sm text-center hidden"></p>
+                
+                <!-- Área de Mensagem de Erro -->
+                <div id="error-msg" class="p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center hidden"></div>
             </form>
         </div>
     </div>
 
-    <!-- =========================================
-         SEÇÃO 2: GALERIA PREMIUM (Inicia Oculta)
-         ========================================= -->
+    <!-- SEÇÃO 2: GALERIA -->
     <div id="gallery-section" class="hidden flex-col flex-grow w-full fade-in">
-        
-        <!-- Header Hero -->
         <header class="relative bg-gray-900 text-white py-24 mb-12">
             <div class="absolute inset-0 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Background" class="w-full h-full object-cover opacity-40">
+                <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover opacity-40">
                 <div class="absolute inset-0 bg-gradient-to-b from-gray-900/60 via-gray-900/40 to-gray-50"></div>
             </div>
-
             <div class="relative container mx-auto px-4 text-center z-10">
-                <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight drop-shadow-xl text-white">
-                    Minha Coleção
-                </h1>
-                <p id="welcome-message" class="text-gray-200 text-xl md:text-2xl font-light max-w-2xl mx-auto drop-shadow-md">
-                    Uma curadoria de momentos capturados.
-                </p>
+                <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight drop-shadow-xl text-white">Minha Coleção</h1>
+                <p id="welcome-message" class="text-gray-200 text-xl md:text-2xl font-light max-w-2xl mx-auto drop-shadow-md">Uma curadoria de momentos capturados.</p>
                 <div class="mt-8 w-24 h-1 bg-blue-500 mx-auto rounded-full shadow-lg"></div>
             </div>
         </header>
 
-        <!-- Grade de Imagens -->
         <main class="flex-grow container mx-auto px-4 mb-12 relative z-10">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                
                 <!-- Imagem 1 -->
                 <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
                     <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
-                        <div class="text-white">
-                            <p class="font-bold text-lg">Natureza</p>
-                            <p class="text-sm text-gray-300">Exploração ao ar livre</p>
-                        </div>
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Natureza</p></div>
                 </div>
-
                 <!-- Imagem 2 -->
                 <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
                     <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
-                        <div class="text-white">
-                            <p class="font-bold text-lg">Urbano</p>
-                            <p class="text-sm text-gray-300">Arquitetura e Luzes</p>
-                        </div>
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Urbano</p></div>
                 </div>
-
                 <!-- Imagem 3 -->
                 <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
                     <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
-                        <div class="text-white">
-                            <p class="font-bold text-lg">Equipamento</p>
-                            <p class="text-sm text-gray-300">Ferramentas de trabalho</p>
-                        </div>
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Equipamento</p></div>
                 </div>
-
                 <!-- Imagem 4 -->
                 <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
                     <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
-                        <div class="text-white">
-                            <p class="font-bold text-lg">Viagens</p>
-                            <p class="text-sm text-gray-300">Memórias distantes</p>
-                        </div>
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Viagens</p></div>
                 </div>
-
                 <!-- Imagem 5 -->
                 <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
                     <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
-                        <div class="text-white">
-                            <p class="font-bold text-lg">Selva</p>
-                            <p class="text-sm text-gray-300">Verde intenso</p>
-                        </div>
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Selva</p></div>
                 </div>
-
                 <!-- Imagem 6 -->
                 <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
                     <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
-                        <div class="text-white">
-                            <p class="font-bold text-lg">Lifestyle</p>
-                            <p class="text-sm text-gray-300">Cotidiano</p>
-                        </div>
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Lifestyle</p></div>
                 </div>
-
             </div>
         </main>
 
-        <!-- Rodapé -->
         <footer class="bg-gray-900 text-white py-12 mt-auto relative z-10">
             <div class="container mx-auto px-4 flex flex-col items-center justify-center">
                 <h3 id="footer-name" class="text-2xl font-bold mb-2 font-serif">Convidado</h3>
                 <p class="text-gray-400 mb-6 text-sm">© 2024 Todos os direitos reservados.</p>
                 <div class="flex space-x-6">
-                    <a href="#" class="hover:text-blue-400 transition transform hover:-translate-y-1"><i data-lucide="instagram" class="w-6 h-6"></i></a>
-                    <a href="#" class="hover:text-blue-400 transition transform hover:-translate-y-1"><i data-lucide="twitter" class="w-6 h-6"></i></a>
-                    <a href="#" class="hover:text-blue-400 transition transform hover:-translate-y-1"><i data-lucide="mail" class="w-6 h-6"></i></a>
-                    <button onclick="logout()" class="hover:text-red-400 transition transform hover:-translate-y-1 ml-4 border-l border-gray-600 pl-4 flex items-center gap-2">
+                    <button onclick="logout()" class="hover:text-red-400 transition transform hover:-translate-y-1 border-l border-gray-600 pl-4 flex items-center gap-2">
                         <i data-lucide="log-out" class="w-5 h-5"></i> Sair
                     </button>
                 </div>
@@ -192,39 +139,53 @@
         </footer>
     </div>
 
-    <!-- MODAL / LIGHTBOX -->
+    <!-- MODAL -->
     <div id="imageModal" class="fixed inset-0 hidden items-center justify-center bg-black/95 backdrop-blur-sm transition-all duration-300 ease-in-out opacity-0 p-4">
-        <button id="closeModalBtn" class="absolute top-4 right-4 text-white/70 hover:text-white z-20 transition">
-            <i data-lucide="x" class="w-10 h-10"></i>
-        </button>
+        <button id="closeModalBtn" class="absolute top-4 right-4 text-white/70 hover:text-white z-20 transition"><i data-lucide="x" class="w-10 h-10"></i></button>
         <div id="modalImageContainer" class="relative max-w-6xl w-full h-full flex items-center justify-center transition-all duration-300 ease-in-out transform scale-95">
             <img id="fullImage" src="" alt="Zoom" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl">
         </div>
     </div>
 
-    <!-- SCRIPTS INTEGRADOS -->
+    <!-- SCRIPT PRINCIPAL -->
     <script>
         // ==========================================================
-        // CONFIGURAÇÃO DO SUPABASE (COLE SUAS CHAVES AQUI)
+        //  ÁREA DE CONFIGURAÇÃO (EDITE COM CUIDADO AQUI)
         // ==========================================================
         
-        // Substitua 'https://xyzcompany.supabase.co' pela sua Project URL
-        const SUPABASE_URL = 'SUA_URL_DO_SUPABASE_AQUI'; 
+        // 1. URL DO PROJETO SUPABASE:
+        // Mantenha as aspas simples ' ' nas extremidades!
+        const SUPABASE_URL = 'https://yzmgdzqpansbiehspixy.supabase.co'; 
 
-        // Substitua 'eyJxhjh...' pela sua API Key (anon public)
+        // 2. CHAVE API (ANON KEY):
+        // Mantenha as aspas simples ' ' nas extremidades!
+        // Cole sua chave eyJ... dentro das aspas.
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bWdkenFwYW5zYmllaHNwaXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0Mzk5NDYsImV4cCI6MjA4MDAxNTk0Nn0.vrVgffEbng7zZjHrwoogUZYcuidTP4YWEelf9bhFlwE';
 
-        // Inicializa o cliente Supabase
-        // (Nota: Se você não preencher as chaves acima, o código não vai conectar)
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        // ==========================================================
+        //  FIM DA CONFIGURAÇÃO
         // ==========================================================
 
-        // 1. Inicializa Ícones
-        lucide.createIcons();
+        // Variável global para o cliente
+        let _supabase = null;
 
-        // 2. Elementos Globais
+        // Inicialização Segura
+        try {
+            if (typeof supabase === 'undefined') {
+                console.error("A biblioteca do Supabase não carregou.");
+            } else if (SUPABASE_URL.includes('SUA_URL') || SUPABASE_KEY.includes('SUA_CHAVE')) {
+                console.warn("Chaves do Supabase não configuradas.");
+            } else {
+                const { createClient } = supabase;
+                _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log("Supabase inicializado com sucesso.");
+            }
+        } catch (e) {
+            console.error("Erro fatal ao iniciar Supabase (verifique as aspas na chave):", e);
+        }
+
+        // Elementos Globais
+        lucide.createIcons();
         const loginSection = document.getElementById('login-section');
         const gallerySection = document.getElementById('gallery-section');
         const accessForm = document.getElementById('access-form');
@@ -233,9 +194,6 @@
         const btnSubmit = document.getElementById('btn-submit');
         const errorMsg = document.getElementById('error-msg');
         
-        // --- LÓGICA DE BANCO DE DADOS (SUPABASE) ---
-
-        // Função auxiliar para mostrar estado de carregamento
         function setLoading(isLoading) {
             if (isLoading) {
                 btnSubmit.disabled = true;
@@ -246,33 +204,36 @@
             }
         }
 
-        // Função para carregar a tela da galeria
         function loadGalleryScreen(nomeUsuario) {
             welcomeMessage.innerHTML = `Olá, <strong>${nomeUsuario}</strong>. Esta é sua curadoria exclusiva.`;
             footerName.textContent = nomeUsuario;
-
             loginSection.classList.add('hidden');
             gallerySection.classList.remove('hidden');
             gallerySection.classList.add('flex');
-            
             lucide.createIcons(); 
         }
 
-        // Verifica se há sessão local (para não pedir login toda hora se der F5)
+        // Verifica sessão local ao carregar
         const sessaoLocal = localStorage.getItem('usuarioSessao');
         if (sessaoLocal) {
-            const usuario = JSON.parse(sessaoLocal);
-            loadGalleryScreen(usuario.nome);
+            try {
+                const usuario = JSON.parse(sessaoLocal);
+                loadGalleryScreen(usuario.nome);
+            } catch(e) { localStorage.removeItem('usuarioSessao'); }
         }
 
-        // Evento de Login/Cadastro
+        // LÓGICA DE LOGIN
         accessForm.addEventListener('submit', async function(e) {
+            // Esta linha impede o recarregamento da página
             e.preventDefault();
-            errorMsg.classList.add('hidden');
             
-            // Validação simples: verificar se as chaves foram preenchidas
-            if (SUPABASE_URL.includes('SUA_URL') || SUPABASE_KEY.includes('SUA_CHAVE')) {
-                alert("Ops! Você precisa configurar as chaves do Supabase no código HTML antes de usar.");
+            errorMsg.classList.add('hidden');
+            errorMsg.textContent = "";
+
+            // Verifica se o Supabase foi iniciado corretamente
+            if (!_supabase) {
+                errorMsg.textContent = "Erro de Configuração: As chaves do Supabase estão inválidas ou não foram preenchidas no código. Verifique se manteve as aspas.";
+                errorMsg.classList.remove('hidden');
                 return;
             }
 
@@ -283,32 +244,29 @@
             setLoading(true);
 
             try {
-                // 1. Tenta buscar usuário pelo email
+                // Busca usuário
                 const { data: usuarioExistente, error: erroBusca } = await _supabase
                     .from('usuarios')
                     .select('*')
                     .eq('email', email)
-                    .maybeSingle(); // Retorna 1 usuario ou null
+                    .maybeSingle();
 
                 if (erroBusca) throw erroBusca;
 
                 let usuarioFinal;
 
                 if (usuarioExistente) {
-                    // SE EXISTE: Faz Login
                     usuarioFinal = usuarioExistente;
-                    // (Opcional) Atualiza o nome se ele mudou
+                    // Atualiza nome se mudou
                     if (usuarioExistente.nome !== nome) {
                         await _supabase.from('usuarios').update({ nome: nome }).eq('email', email);
                         usuarioFinal.nome = nome;
                     }
                 } else {
-                    // SE NÃO EXISTE: Cria novo usuário
+                    // Cria novo
                     const { data: novoUsuario, error: erroInsert } = await _supabase
                         .from('usuarios')
-                        .insert([
-                            { nome: nome, telefone: telefone, email: email }
-                        ])
+                        .insert([{ nome: nome, telefone: telefone, email: email }])
                         .select()
                         .single();
 
@@ -316,13 +274,12 @@
                     usuarioFinal = novoUsuario;
                 }
 
-                // Sucesso! Salva sessão local e entra
                 localStorage.setItem('usuarioSessao', JSON.stringify(usuarioFinal));
                 loadGalleryScreen(usuarioFinal.nome);
 
             } catch (error) {
                 console.error("Erro Supabase:", error);
-                errorMsg.textContent = "Erro ao conectar: " + (error.message || "Verifique sua conexão.");
+                errorMsg.textContent = "Erro ao conectar: " + (error.message || "Verifique sua conexão e se a tabela 'usuarios' foi criada.");
                 errorMsg.classList.remove('hidden');
             } finally {
                 setLoading(false);
@@ -331,10 +288,10 @@
 
         function logout() {
             localStorage.removeItem('usuarioSessao');
-            location.reload(); // Recarrega para voltar ao estado inicial limpo
+            location.reload();
         }
 
-        // --- Lógica do Modal (Mantida igual) ---
+        // MODAL
         const modal = document.getElementById('imageModal');
         const modalContainer = document.getElementById('modalImageContainer');
         const fullImage = document.getElementById('fullImage');
@@ -361,12 +318,10 @@
             }, 300);
         }
 
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                const src = card.getAttribute('data-src');
-                if(src) openModal(src);
-            });
-        });
+        cards.forEach(card => card.addEventListener('click', () => {
+            const src = card.getAttribute('data-src');
+            if(src) openModal(src);
+        }));
 
         closeBtn.addEventListener('click', closeModal);
         modal.addEventListener('click', (e) => {
