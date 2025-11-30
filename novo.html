@@ -8,6 +8,7 @@
     <!-- Bibliotecas Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Importante: Biblioteca do Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Estilos -->
@@ -61,7 +62,7 @@
                     <span>Entrar na Galeria</span>
                 </button>
                 
-                <!-- Área de Mensagem de Erro Melhorada -->
+                <!-- Área de Mensagem de Erro -->
                 <div id="error-msg" class="p-4 bg-red-50 text-red-800 rounded-lg text-sm hidden border border-red-200 text-left"></div>
             </form>
         </div>
@@ -135,21 +136,22 @@
     <!-- SCRIPT PRINCIPAL -->
     <script>
         // ==========================================================
-        //  1. CONFIGURAÇÃO (EDITE COM CUIDADO)
+        //  1. CONFIGURAÇÃO DO SUPABASE (EDITE AQUI!)
         // ==========================================================
         
-        // URL DO PROJETO SUPABASE (Mantenha as aspas!)
+        // Coloque sua URL entre as aspas (ex: 'https://xxx.supabase.co')
         const SUPABASE_URL = 'https://yzmgdzqpansbiehspixy.supabase.co'; 
 
-        // CHAVE API ANON KEY (Mantenha as aspas!)
+        // Coloque sua chave ANON entre as aspas (ex: 'eyJ...')
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bWdkenFwYW5zYmllaHNwaXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0Mzk5NDYsImV4cCI6MjA4MDAxNTk0Nn0.vrVgffEbng7zZjHrwoogUZYcuidTP4YWEelf9bhFlwE';
 
         // ==========================================================
-        //  2. LÓGICA DO SISTEMA
+        //  2. LÓGICA DO SISTEMA (NÃO PRECISA MEXER ABAIXO)
         // ==========================================================
 
         let _supabase = null;
 
+        // Inicializa o cliente do Supabase
         try {
             if (typeof supabase === 'undefined') {
                 console.error("Erro: A biblioteca do Supabase não carregou.");
@@ -192,6 +194,7 @@
             lucide.createIcons(); 
         }
 
+        // Verifica se já fez login antes (sessão salva no navegador)
         const sessaoLocal = localStorage.getItem('usuarioSessao');
         if (sessaoLocal) {
             try {
@@ -200,15 +203,16 @@
             } catch(e) { localStorage.removeItem('usuarioSessao'); }
         }
 
-        // LÓGICA DE LOGIN COM DIAGNÓSTICO DE ERRO
+        // LÓGICA DE LOGIN COM SUPABASE + DIAGNÓSTICO
         accessForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             errorMsg.classList.add('hidden');
             errorMsg.textContent = "";
 
+            // Verifica se o Supabase está ativo
             if (!_supabase) {
-                errorMsg.innerHTML = "<strong>Erro de Configuração:</strong><br>As chaves do Supabase estão inválidas ou não foram coladas. Verifique as aspas.";
+                errorMsg.innerHTML = "<strong>Erro de Configuração:</strong><br>As chaves do Supabase estão inválidas ou não foram coladas no código. Verifique as aspas simples ' ' ao redor da chave.";
                 errorMsg.classList.remove('hidden');
                 return;
             }
@@ -220,7 +224,7 @@
             setLoading(true);
 
             try {
-                // 1. Busca usuário (usando select normal para evitar erros de duplicidade)
+                // 1. Tenta buscar se o usuário já existe
                 const { data: usuariosEncontrados, error: erroBusca } = await _supabase
                     .from('usuarios')
                     .select('*')
@@ -230,16 +234,17 @@
 
                 let usuarioFinal;
 
-                // Verifica se encontrou alguém
+                // 2. Lógica de Login Inteligente
                 if (usuariosEncontrados && usuariosEncontrados.length > 0) {
+                    // Usuário já existe -> Login
                     usuarioFinal = usuariosEncontrados[0];
-                    // Atualiza nome se necessário
+                    // Atualiza o nome se tiver mudado
                     if (usuarioFinal.nome !== nome) {
                         await _supabase.from('usuarios').update({ nome: nome }).eq('email', email);
                         usuarioFinal.nome = nome;
                     }
                 } else {
-                    // Cria novo
+                    // Usuário não existe -> Cadastro
                     const { data: novoUsuario, error: erroInsert } = await _supabase
                         .from('usuarios')
                         .insert([{ nome: nome, telefone: telefone, email: email }])
@@ -250,6 +255,7 @@
                     usuarioFinal = novoUsuario;
                 }
 
+                // 3. Sucesso: Salva sessão e carrega tela
                 localStorage.setItem('usuarioSessao', JSON.stringify(usuarioFinal));
                 loadGalleryScreen(usuarioFinal.nome);
 
@@ -260,16 +266,19 @@
                 let msg = error.message || JSON.stringify(error);
                 let solucao = "";
 
-                // TRADUTOR DE ERROS
+                // TRADUTOR DE ERROS COMUNS DO SUPABASE
                 if (msg.includes('relation "usuarios" does not exist')) {
                     titulo = "Tabela não encontrada";
-                    solucao = "Você criou a tabela com o nome errado. O nome deve ser <strong>usuarios</strong> (tudo minúsculo).";
+                    solucao = "Você criou a tabela com o nome errado. O nome deve ser <strong>usuarios</strong> (tudo minúsculo) e não 'Usuarios' ou 'users'.";
                 } else if (msg.includes('column') && msg.includes('does not exist')) {
                     titulo = "Coluna incorreta";
                     solucao = "Verifique se criou as colunas: <strong>nome, telefone, email</strong> (tudo minúsculo).";
                 } else if (msg.includes('violates row-level security policy')) {
                     titulo = "Bloqueio de Segurança (RLS)";
-                    solucao = "Vá no Supabase > Tabela 'usuarios' > Clique no cadeado (RLS) e desative a opção 'Enable Row Level Security'.";
+                    solucao = "Vá no Supabase > Table Editor > 'usuarios' > Clique no aviso de RLS e desative a opção 'Enable Row Level Security' (para testes).";
+                } else if (msg.includes('apikey')) {
+                    titulo = "Chave Inválida";
+                    solucao = "Sua API Key está errada. Verifique se copiou a chave 'anon public' inteira.";
                 }
 
                 errorMsg.innerHTML = `<strong class="text-red-900 block mb-1">${titulo}:</strong>${solucao || msg}`;
