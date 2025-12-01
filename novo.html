@@ -31,44 +31,86 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Estilo da Aba Ativa */
+        .tab-active {
+            border-bottom: 2px solid #111827; /* gray-900 */
+            color: #111827;
+            font-weight: 700;
+        }
+        /* Estilo da Aba Inativa */
+        .tab-inactive {
+            color: #6b7280; /* gray-500 */
+            border-bottom: 2px solid transparent;
+        }
+        .tab-inactive:hover {
+            color: #374151; /* gray-700 */
+        }
     </style>
 </head>
 <body id="main-body" class="flex flex-col min-h-screen bg-gray-50 text-gray-800 transition-all duration-500">
 
-    <!-- SEÇÃO 1: LOGIN -->
+    <!-- SEÇÃO 1: CONTAINER DE ACESSO -->
     <div id="login-section" class="flex-grow flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl fade-in">
-            <div class="text-center mb-8">
+            
+            <div class="text-center mb-6">
                 <h1 class="text-4xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
-                <p class="text-gray-500">Entre com seus dados para acessar.</p>
+                <p class="text-gray-500">Acesse sua coleção exclusiva.</p>
             </div>
 
-            <form id="access-form" class="space-y-4" onsubmit="event.preventDefault()">
+            <!-- NAVEGAÇÃO POR ABAS -->
+            <div class="flex mb-6 border-b border-gray-200">
+                <button id="tab-btn-login" onclick="switchTab('login')" class="flex-1 pb-2 text-center transition-colors tab-active">
+                    Login
+                </button>
+                <button id="tab-btn-register" onclick="switchTab('register')" class="flex-1 pb-2 text-center transition-colors tab-inactive">
+                    Cadastro
+                </button>
+            </div>
+
+            <!-- FORMULÁRIO DE LOGIN (Apenas Nome e Senha) -->
+            <form id="login-form" class="space-y-4" onsubmit="event.preventDefault()">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
-                    <input type="text" id="nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Seu nome">
+                    <input type="text" id="login-nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Seu nome">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="login-senha" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Sua senha">
+                </div>
+
+                <button type="submit" id="btn-login" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2 mt-4">
+                    <span>Entrar</span>
+                </button>
+            </form>
+
+            <!-- FORMULÁRIO DE CADASTRO (Completo) -->
+            <form id="register-form" class="space-y-4 hidden" onsubmit="event.preventDefault()">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
+                    <input type="text" id="reg-nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Seu nome">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Telefone</label>
-                    <input type="tel" id="telefone" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="(00) 00000-0000">
+                    <input type="tel" id="reg-telefone" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="(00) 00000-0000">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">E-mail</label>
-                    <input type="email" id="email" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="seu@email.com">
+                    <input type="email" id="reg-email" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="seu@email.com">
                 </div>
-                <!-- NOVO CAMPO: SENHA -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
-                    <input type="password" id="senha" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Crie ou digite sua senha">
+                    <input type="password" id="reg-senha" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Crie uma senha">
                 </div>
 
-                <button type="submit" id="btn-submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2 mt-4">
-                    <span>Entrar na Galeria</span>
+                <button type="submit" id="btn-register" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2 mt-4">
+                    <span>Cadastrar</span>
                 </button>
-                
-                <!-- Área de Mensagem de Erro -->
-                <div id="error-msg" class="p-4 bg-red-50 text-red-800 rounded-lg text-sm hidden border border-red-200 text-left"></div>
             </form>
+            
+            <!-- Área de Mensagem de Erro -->
+            <div id="error-msg" class="mt-4 p-4 bg-red-50 text-red-800 rounded-lg text-sm hidden border border-red-200 text-left"></div>
         </div>
     </div>
 
@@ -150,7 +192,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bWdkenFwYW5zYmllaHNwaXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0Mzk5NDYsImV4cCI6MjA4MDAxNTk0Nn0.vrVgffEbng7zZjHrwoogUZYcuidTP4YWEelf9bhFlwE';
 
         // ==========================================================
-        //  2. LÓGICA DO SISTEMA (NÃO PRECISA MEXER ABAIXO)
+        //  2. LÓGICA DO SISTEMA
         // ==========================================================
 
         let _supabase = null;
@@ -171,21 +213,51 @@
         }
 
         lucide.createIcons();
+        
+        // ELEMENTOS DO DOM
         const loginSection = document.getElementById('login-section');
         const gallerySection = document.getElementById('gallery-section');
-        const accessForm = document.getElementById('access-form');
         const welcomeMessage = document.getElementById('welcome-message');
         const footerName = document.getElementById('footer-name');
-        const btnSubmit = document.getElementById('btn-submit');
         const errorMsg = document.getElementById('error-msg');
         
-        function setLoading(isLoading) {
-            if (isLoading) {
-                btnSubmit.disabled = true;
-                btnSubmit.innerHTML = `<div class="loader"></div> <span>Conectando...</span>`;
+        // Elementos das Abas e Forms
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const tabBtnLogin = document.getElementById('tab-btn-login');
+        const tabBtnRegister = document.getElementById('tab-btn-register');
+        const btnLogin = document.getElementById('btn-login');
+        const btnRegister = document.getElementById('btn-register');
+
+        // FUNÇÃO PARA TROCAR ABAS
+        function switchTab(tab) {
+            errorMsg.classList.add('hidden'); // Limpa erros ao trocar
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                
+                tabBtnLogin.classList.add('tab-active');
+                tabBtnLogin.classList.remove('tab-inactive');
+                tabBtnRegister.classList.remove('tab-active');
+                tabBtnRegister.classList.add('tab-inactive');
             } else {
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = `<span>Entrar na Galeria</span>`;
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                
+                tabBtnLogin.classList.remove('tab-active');
+                tabBtnLogin.classList.add('tab-inactive');
+                tabBtnRegister.classList.add('tab-active');
+                tabBtnRegister.classList.remove('tab-inactive');
+            }
+        }
+
+        function setLoading(btn, isLoading, textNormal) {
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<div class="loader"></div> <span>Processando...</span>`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = `<span>${textNormal}</span>`;
             }
         }
 
@@ -198,7 +270,7 @@
             lucide.createIcons(); 
         }
 
-        // Verifica se já fez login antes (sessão salva no navegador)
+        // Verifica sessão anterior
         const sessaoLocal = localStorage.getItem('usuarioSessao');
         if (sessaoLocal) {
             try {
@@ -207,104 +279,140 @@
             } catch(e) { localStorage.removeItem('usuarioSessao'); }
         }
 
-        // LÓGICA DE LOGIN/CADASTRO COM SENHA
-        accessForm.addEventListener('submit', async function(e) {
+        // ==========================================================
+        //  LÓGICA DE LOGIN (NOME E SENHA)
+        // ==========================================================
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             errorMsg.classList.add('hidden');
             errorMsg.textContent = "";
 
             if (!_supabase) {
-                errorMsg.innerHTML = "<strong>Erro de Configuração:</strong><br>As chaves do Supabase estão inválidas.";
-                errorMsg.classList.remove('hidden');
-                return;
+                showConfigError(); return;
             }
 
-            const nome = document.getElementById('nome').value;
-            const telefone = document.getElementById('telefone').value;
-            const email = document.getElementById('email').value.trim();
-            const senha = document.getElementById('senha').value.trim(); // Nova variável senha
+            const nome = document.getElementById('login-nome').value.trim();
+            const senha = document.getElementById('login-senha').value.trim();
 
-            setLoading(true);
+            setLoading(btnLogin, true, "Entrar");
 
             try {
-                // 1. Tenta buscar se o usuário já existe
-                const { data: usuariosEncontrados, error: erroBusca } = await _supabase
+                // Busca usuário pelo NOME
+                const { data: usuarios, error: erroBusca } = await _supabase
                     .from('usuarios')
                     .select('*')
-                    .eq('email', email);
+                    .eq('nome', nome); // Busca exata pelo nome
 
                 if (erroBusca) throw erroBusca;
 
-                let usuarioFinal;
-
-                // 2. Lógica Inteligente
-                if (usuariosEncontrados && usuariosEncontrados.length > 0) {
-                    // --- CENÁRIO: USUÁRIO JÁ EXISTE ---
-                    usuarioFinal = usuariosEncontrados[0];
-
-                    // Verificação de Senha (simples)
-                    // Se o usuário ainda não tinha senha cadastrada (null ou vazio), salvamos a nova senha agora.
-                    if (!usuarioFinal.senha) {
-                        await _supabase.from('usuarios').update({ senha: senha, nome: nome }).eq('email', email);
-                        usuarioFinal.senha = senha;
-                        usuarioFinal.nome = nome;
-                    } 
-                    // Se já tinha senha, verificamos se bate
-                    else if (usuarioFinal.senha !== senha) {
-                        throw new Error("Senha incorreta. Tente novamente.");
-                    }
-                    // Se chegou aqui, a senha está correta!
-
-                } else {
-                    // --- CENÁRIO: NOVO USUÁRIO ---
-                    const { data: novoUsuario, error: erroInsert } = await _supabase
-                        .from('usuarios')
-                        .insert([{ 
-                            nome: nome, 
-                            telefone: telefone, 
-                            email: email,
-                            senha: senha // Salvando a senha
-                        }])
-                        .select()
-                        .single();
-
-                    if (erroInsert) throw erroInsert;
-                    usuarioFinal = novoUsuario;
+                if (!usuarios || usuarios.length === 0) {
+                    throw new Error("Usuário não encontrado. Verifique o nome ou cadastre-se.");
                 }
 
-                // 3. Sucesso
-                localStorage.setItem('usuarioSessao', JSON.stringify(usuarioFinal));
-                loadGalleryScreen(usuarioFinal.nome);
+                // Pega o primeiro usuário encontrado (caso haja nomes duplicados, pega o primeiro)
+                const usuario = usuarios[0];
+
+                // Verifica Senha
+                if (usuario.senha !== senha) {
+                    throw new Error("Senha incorreta.");
+                }
+
+                // Sucesso
+                localStorage.setItem('usuarioSessao', JSON.stringify(usuario));
+                loadGalleryScreen(usuario.nome);
 
             } catch (error) {
-                console.error("Erro Supabase:", error);
-                
-                let titulo = "Ocorreu um erro";
-                let msg = error.message || JSON.stringify(error);
-                let solucao = "";
-
-                if (msg.includes('relation "usuarios" does not exist')) {
-                    titulo = "Tabela não encontrada";
-                    solucao = "A tabela 'usuarios' não existe no banco.";
-                } else if (msg.includes('column') && msg.includes('does not exist')) {
-                    titulo = "Coluna faltando";
-                    solucao = "Você criou a coluna 'senha' no Supabase? Vá em Table Editor e adicione a coluna 'senha' (tipo text).";
-                } else if (msg.includes("Senha incorreta")) {
-                    titulo = "Acesso Negado";
-                    solucao = "A senha informada não confere com a cadastrada.";
-                }
-
-                errorMsg.innerHTML = `
-                    <strong class="text-red-900 block mb-1">${titulo}</strong>
-                    <span class="block mb-2">${solucao || "Verifique o erro abaixo:"}</span>
-                    <span class="block text-xs text-red-500 border-t border-red-200 pt-1 mt-1 font-mono">Detalhe: ${msg}</span>
-                `;
-                errorMsg.classList.remove('hidden');
+                handleError(error);
             } finally {
-                setLoading(false);
+                setLoading(btnLogin, false, "Entrar");
             }
         });
+
+        // ==========================================================
+        //  LÓGICA DE CADASTRO (NOME, TELEFONE, EMAIL, SENHA)
+        // ==========================================================
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            errorMsg.classList.add('hidden');
+            errorMsg.textContent = "";
+
+            if (!_supabase) {
+                showConfigError(); return;
+            }
+
+            const nome = document.getElementById('reg-nome').value.trim();
+            const telefone = document.getElementById('reg-telefone').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const senha = document.getElementById('reg-senha').value.trim();
+
+            setLoading(btnRegister, true, "Cadastrar");
+
+            try {
+                // Verifica se e-mail já existe (para evitar duplicação)
+                const { data: checkEmail } = await _supabase
+                    .from('usuarios')
+                    .select('id')
+                    .eq('email', email);
+
+                if (checkEmail && checkEmail.length > 0) {
+                    throw new Error("Este e-mail já está cadastrado. Tente fazer Login.");
+                }
+
+                // Insere novo usuário
+                const { data: novoUsuario, error: erroInsert } = await _supabase
+                    .from('usuarios')
+                    .insert([{ 
+                        nome: nome, 
+                        telefone: telefone, 
+                        email: email,
+                        senha: senha
+                    }])
+                    .select()
+                    .single();
+
+                if (erroInsert) throw erroInsert;
+
+                // Sucesso
+                localStorage.setItem('usuarioSessao', JSON.stringify(novoUsuario));
+                loadGalleryScreen(novoUsuario.nome);
+
+            } catch (error) {
+                handleError(error);
+            } finally {
+                setLoading(btnRegister, false, "Cadastrar");
+            }
+        });
+
+        // Funções Auxiliares de Erro
+        function showConfigError() {
+            errorMsg.innerHTML = "<strong>Erro de Configuração:</strong><br>As chaves do Supabase estão inválidas.";
+            errorMsg.classList.remove('hidden');
+        }
+
+        function handleError(error) {
+            console.error("Erro Supabase:", error);
+            let titulo = "Ocorreu um erro";
+            let msg = error.message || JSON.stringify(error);
+            let solucao = "";
+
+            if (msg.includes('relation "usuarios" does not exist')) {
+                titulo = "Tabela não encontrada";
+                solucao = "A tabela 'usuarios' não existe no banco.";
+            } else if (msg.includes('column') && msg.includes('does not exist')) {
+                titulo = "Coluna faltando";
+                solucao = "Verifique se todas as colunas (nome, telefone, email, senha) existem no Supabase.";
+            } else if (msg.includes("Senha incorreta") || msg.includes("Usuário não encontrado")) {
+                titulo = "Acesso Negado";
+                solucao = msg;
+            }
+
+            errorMsg.innerHTML = `
+                <strong class="text-red-900 block mb-1">${titulo}</strong>
+                <span class="block mb-2">${solucao || "Detalhe do erro:"}</span>
+                <span class="block text-xs text-red-500 border-t border-red-200 pt-1 mt-1 font-mono">${msg}</span>
+            `;
+            errorMsg.classList.remove('hidden');
+        }
 
         function logout() {
             localStorage.removeItem('usuarioSessao');
