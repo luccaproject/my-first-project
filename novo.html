@@ -8,7 +8,6 @@
     <!-- Bibliotecas Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Importante: Biblioteca do Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Estilos -->
@@ -41,10 +40,10 @@
         <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl fade-in">
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
-                <p class="text-gray-500">Digite seus dados para conectar.</p>
+                <p class="text-gray-500">Entre com seus dados para acessar.</p>
             </div>
 
-            <form id="access-form" class="space-y-5" onsubmit="event.preventDefault()">
+            <form id="access-form" class="space-y-4" onsubmit="event.preventDefault()">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
                     <input type="text" id="nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Seu nome">
@@ -57,8 +56,13 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1">E-mail</label>
                     <input type="email" id="email" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="seu@email.com">
                 </div>
+                <!-- NOVO CAMPO: SENHA -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="senha" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Crie ou digite sua senha">
+                </div>
 
-                <button type="submit" id="btn-submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2">
+                <button type="submit" id="btn-submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2 mt-4">
                     <span>Entrar na Galeria</span>
                 </button>
                 
@@ -203,16 +207,15 @@
             } catch(e) { localStorage.removeItem('usuarioSessao'); }
         }
 
-        // LÓGICA DE LOGIN COM SUPABASE + DIAGNÓSTICO
+        // LÓGICA DE LOGIN/CADASTRO COM SENHA
         accessForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             errorMsg.classList.add('hidden');
             errorMsg.textContent = "";
 
-            // Verifica se o Supabase está ativo
             if (!_supabase) {
-                errorMsg.innerHTML = "<strong>Erro de Configuração:</strong><br>As chaves do Supabase estão inválidas ou não foram coladas no código. Verifique as aspas simples ' ' ao redor da chave.";
+                errorMsg.innerHTML = "<strong>Erro de Configuração:</strong><br>As chaves do Supabase estão inválidas.";
                 errorMsg.classList.remove('hidden');
                 return;
             }
@@ -220,6 +223,7 @@
             const nome = document.getElementById('nome').value;
             const telefone = document.getElementById('telefone').value;
             const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value.trim(); // Nova variável senha
 
             setLoading(true);
 
@@ -234,20 +238,34 @@
 
                 let usuarioFinal;
 
-                // 2. Lógica de Login Inteligente
+                // 2. Lógica Inteligente
                 if (usuariosEncontrados && usuariosEncontrados.length > 0) {
-                    // Usuário já existe -> Login
+                    // --- CENÁRIO: USUÁRIO JÁ EXISTE ---
                     usuarioFinal = usuariosEncontrados[0];
-                    // Atualiza o nome se tiver mudado
-                    if (usuarioFinal.nome !== nome) {
-                        await _supabase.from('usuarios').update({ nome: nome }).eq('email', email);
+
+                    // Verificação de Senha (simples)
+                    // Se o usuário ainda não tinha senha cadastrada (null ou vazio), salvamos a nova senha agora.
+                    if (!usuarioFinal.senha) {
+                        await _supabase.from('usuarios').update({ senha: senha, nome: nome }).eq('email', email);
+                        usuarioFinal.senha = senha;
                         usuarioFinal.nome = nome;
+                    } 
+                    // Se já tinha senha, verificamos se bate
+                    else if (usuarioFinal.senha !== senha) {
+                        throw new Error("Senha incorreta. Tente novamente.");
                     }
+                    // Se chegou aqui, a senha está correta!
+
                 } else {
-                    // Usuário não existe -> Cadastro
+                    // --- CENÁRIO: NOVO USUÁRIO ---
                     const { data: novoUsuario, error: erroInsert } = await _supabase
                         .from('usuarios')
-                        .insert([{ nome: nome, telefone: telefone, email: email }])
+                        .insert([{ 
+                            nome: nome, 
+                            telefone: telefone, 
+                            email: email,
+                            senha: senha // Salvando a senha
+                        }])
                         .select()
                         .single();
 
@@ -255,7 +273,7 @@
                     usuarioFinal = novoUsuario;
                 }
 
-                // 3. Sucesso: Salva sessão e carrega tela
+                // 3. Sucesso
                 localStorage.setItem('usuarioSessao', JSON.stringify(usuarioFinal));
                 loadGalleryScreen(usuarioFinal.nome);
 
@@ -266,22 +284,22 @@
                 let msg = error.message || JSON.stringify(error);
                 let solucao = "";
 
-                // TRADUTOR DE ERROS COMUNS DO SUPABASE
                 if (msg.includes('relation "usuarios" does not exist')) {
                     titulo = "Tabela não encontrada";
-                    solucao = "Você criou a tabela com o nome errado. O nome deve ser <strong>usuarios</strong> (tudo minúsculo) e não 'Usuarios' ou 'users'.";
+                    solucao = "A tabela 'usuarios' não existe no banco.";
                 } else if (msg.includes('column') && msg.includes('does not exist')) {
-                    titulo = "Coluna incorreta";
-                    solucao = "Verifique se criou as colunas: <strong>nome, telefone, email</strong> (tudo minúsculo).";
-                } else if (msg.includes('violates row-level security policy')) {
-                    titulo = "Bloqueio de Segurança (RLS)";
-                    solucao = "Vá no Supabase > Table Editor > 'usuarios' > Clique no aviso de RLS e desative a opção 'Enable Row Level Security' (para testes).";
-                } else if (msg.includes('apikey')) {
-                    titulo = "Chave Inválida";
-                    solucao = "Sua API Key está errada. Verifique se copiou a chave 'anon public' inteira.";
+                    titulo = "Coluna faltando";
+                    solucao = "Você criou a coluna 'senha' no Supabase? Vá em Table Editor e adicione a coluna 'senha' (tipo text).";
+                } else if (msg.includes("Senha incorreta")) {
+                    titulo = "Acesso Negado";
+                    solucao = "A senha informada não confere com a cadastrada.";
                 }
 
-                errorMsg.innerHTML = `<strong class="text-red-900 block mb-1">${titulo}:</strong>${solucao || msg}`;
+                errorMsg.innerHTML = `
+                    <strong class="text-red-900 block mb-1">${titulo}</strong>
+                    <span class="block mb-2">${solucao || "Verifique o erro abaixo:"}</span>
+                    <span class="block text-xs text-red-500 border-t border-red-200 pt-1 mt-1 font-mono">Detalhe: ${msg}</span>
+                `;
                 errorMsg.classList.remove('hidden');
             } finally {
                 setLoading(false);
