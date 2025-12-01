@@ -10,15 +10,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Configuração Tailwind para cores personalizadas se necessário -->
+    <!-- Configuração Tailwind -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        'brand-black': '#1a1a1a',
-                        'brand-gray': '#f4f4f4',
-                    },
                     boxShadow: {
                         'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
                     }
@@ -60,12 +56,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Input Customizado */
-        .custom-input:focus-within {
-            border-color: #1a1a1a;
-            background-color: #fff;
-        }
     </style>
 </head>
 <body id="main-body" class="flex flex-col min-h-screen bg-[#f8f9fa] text-gray-800 antialiased selection:bg-gray-900 selection:text-white">
@@ -73,7 +63,7 @@
     <!-- SEÇÃO 1: CONTAINER DE ACESSO (LOGIN/CADASTRO) -->
     <div id="login-section" class="flex-grow flex items-center justify-center p-4 relative overflow-hidden">
         
-        <!-- Elemento Decorativo de Fundo -->
+        <!-- Fundo Decorativo -->
         <div class="absolute inset-0 z-0 opacity-5">
             <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover grayscale">
         </div>
@@ -86,7 +76,7 @@
                 <p class="text-gray-500 font-light text-lg">Acesse sua coleção exclusiva.</p>
             </div>
 
-            <!-- NAVEGAÇÃO POR ABAS (Estilo Moderno) -->
+            <!-- NAVEGAÇÃO POR ABAS -->
             <div class="flex p-1 bg-gray-100 rounded-lg mb-8 relative">
                 <button id="tab-btn-login" onclick="switchTab('login')" class="flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-300 bg-white text-gray-900 shadow-sm">
                     Login
@@ -142,7 +132,6 @@
                 </button>
             </form>
             
-            <!-- Área de Mensagem de Erro -->
             <div id="error-msg" class="mt-6 p-4 bg-red-50 text-red-900 rounded-lg text-sm hidden border border-red-100 text-left fade-in"></div>
         </div>
         
@@ -153,6 +142,8 @@
 
     <!-- SEÇÃO 2: GALERIA -->
     <div id="gallery-section" class="hidden flex-col flex-grow w-full fade-in">
+        
+        <!-- Header Hero -->
         <header class="relative bg-gray-900 text-white py-32 mb-16">
             <div class="absolute inset-0 overflow-hidden">
                 <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover opacity-30 transform scale-105">
@@ -166,73 +157,53 @@
             </div>
         </header>
 
+        <!-- Grade de Imagens -->
         <main class="flex-grow container mx-auto px-4 md:px-8 mb-20 relative z-10 -mt-20">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                
-                <!-- Card 1 -->
-                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
-                     data-src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                     <!-- Moldura Branca (Padding interno) -->
+                <!-- Cards de Imagem (Mantidos os mesmos) -->
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" data-src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
                     <div class="absolute inset-2 border border-white/10 z-20 pointer-events-none transition-opacity duration-300 opacity-50 group-hover:opacity-100"></div>
-                    
-                    <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    
+                    <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Outdoor</span>
                         <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Natureza</p>
                     </div>
                 </div>
 
-                <!-- Card 2 -->
-                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
-                     data-src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" data-src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">City Life</span>
                         <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Urbano</p>
                     </div>
                 </div>
 
-                <!-- Card 3 -->
-                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
-                     data-src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" data-src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Tools</span>
                         <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Equipamento</p>
                     </div>
                 </div>
 
-                <!-- Card 4 -->
-                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
-                     data-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" data-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Travel</span>
                         <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Viagens</p>
                     </div>
                 </div>
 
-                <!-- Card 5 -->
-                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
-                     data-src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" data-src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Wild</span>
                         <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Selva</p>
                     </div>
                 </div>
 
-                <!-- Card 6 -->
-                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
-                     data-src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" data-src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Daily</span>
                         <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Lifestyle</p>
@@ -241,17 +212,42 @@
             </div>
         </main>
 
-        <footer class="bg-white border-t border-gray-100 text-gray-800 py-12 mt-auto relative z-10">
+        <!-- NOVO RODAPÉ COM REDES SOCIAIS E SUPORTE -->
+        <footer class="bg-white border-t border-gray-100 text-gray-800 py-16 mt-auto relative z-10">
             <div class="container mx-auto px-4 flex flex-col items-center justify-center">
-                <div class="w-8 h-8 bg-gray-900 rounded-full mb-4"></div>
-                <h3 id="footer-name" class="text-2xl font-bold mb-2 font-serif text-gray-900">Convidado</h3>
-                <p class="text-gray-400 mb-6 text-sm">© 2024 Gallery Experience. Todos os direitos reservados.</p>
-                <div class="flex space-x-6">
-                    <button onclick="logout()" class="group flex items-center gap-2 px-6 py-2 rounded-full border border-gray-200 hover:border-red-200 hover:bg-red-50 transition-all duration-300">
-                        <span class="text-sm font-medium text-gray-600 group-hover:text-red-600 transition-colors">Sair da Conta</span>
-                        <i data-lucide="log-out" class="w-4 h-4 text-gray-400 group-hover:text-red-500"></i>
-                    </button>
+                
+                <!-- Avatar Placeholder (Opcional) -->
+                <div class="w-12 h-12 bg-gray-900 rounded-full mb-6 flex items-center justify-center text-white font-serif text-xl">
+                    <span id="avatar-initial">G</span>
                 </div>
+                
+                <h3 id="footer-name" class="text-3xl font-bold mb-2 font-serif text-gray-900">Convidado</h3>
+                <p class="text-gray-400 mb-8 text-sm tracking-wide">© 2024 Gallery Experience. Todos os direitos reservados.</p>
+                
+                <!-- Ícones de Redes Sociais e Contato -->
+                <div class="flex items-center gap-8 mb-10">
+                    <a href="https://instagram.com" target="_blank" class="text-gray-400 hover:text-pink-600 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110">
+                        <i data-lucide="instagram" class="w-6 h-6"></i>
+                    </a>
+                    <a href="https://twitter.com" target="_blank" class="text-gray-400 hover:text-blue-400 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110">
+                        <i data-lucide="twitter" class="w-6 h-6"></i>
+                    </a>
+                    <a href="mailto:lucca.alice.resende@gmail.com" class="text-gray-400 hover:text-gray-900 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110">
+                        <i data-lucide="mail" class="w-6 h-6"></i>
+                    </a>
+                    <!-- Botão de Suporte (WhatsApp) -->
+                    <a href="https://wa.me/5531972229181" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full text-gray-500 hover:text-green-600 hover:bg-green-50 transition-all duration-300 border border-gray-100 group">
+                        <i data-lucide="message-circle-question" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-medium">Suporte</span>
+                    </a>
+                </div>
+
+                <!-- Botão Sair -->
+                <button onclick="logout()" class="group flex items-center gap-2 px-6 py-2 rounded-full border border-gray-200 hover:border-red-200 hover:bg-red-50 transition-all duration-300 opacity-60 hover:opacity-100">
+                    <span class="text-xs font-bold uppercase tracking-widest text-gray-500 group-hover:text-red-600 transition-colors">Sair da Conta</span>
+                    <i data-lucide="log-out" class="w-4 h-4 text-gray-400 group-hover:text-red-500"></i>
+                </button>
+
             </div>
         </footer>
     </div>
@@ -313,18 +309,16 @@
         const btnLogin = document.getElementById('btn-login');
         const btnRegister = document.getElementById('btn-register');
 
-        // FUNÇÃO DE ABAS REFINADA
+        // FUNÇÃO DE ABAS
         function switchTab(tab) {
             errorMsg.classList.add('hidden');
             if (tab === 'login') {
                 loginForm.classList.remove('hidden');
                 registerForm.classList.add('hidden');
                 
-                // Estilo Ativo (Branco com sombra)
                 tabBtnLogin.classList.remove('text-gray-500', 'hover:text-gray-700');
                 tabBtnLogin.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
                 
-                // Estilo Inativo (Transparente)
                 tabBtnRegister.classList.add('text-gray-500', 'hover:text-gray-700');
                 tabBtnRegister.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
             } else {
@@ -351,17 +345,18 @@
         }
 
         function loadGalleryScreen(nomeUsuario) {
-            // Animação de entrada suave
             welcomeMessage.innerHTML = `Olá, <strong class="text-white">${nomeUsuario}</strong>. Bem-vindo à sua curadoria.`;
             footerName.textContent = nomeUsuario;
             
+            // Define inicial do avatar
+            const avatarInitial = document.getElementById('avatar-initial');
+            if (avatarInitial) avatarInitial.textContent = nomeUsuario.charAt(0).toUpperCase();
+
             loginSection.classList.add('hidden');
             gallerySection.classList.remove('hidden');
             gallerySection.classList.add('flex');
             
-            // Scroll suave para o topo
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            
             lucide.createIcons(); 
         }
 
@@ -373,7 +368,7 @@
             } catch(e) { localStorage.removeItem('usuarioSessao'); }
         }
 
-        // LÓGICA DE LOGIN
+        // LOGIN
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             errorMsg.classList.add('hidden');
@@ -412,7 +407,7 @@
             }
         });
 
-        // LÓGICA DE CADASTRO
+        // CADASTRO
         registerForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             errorMsg.classList.add('hidden');
