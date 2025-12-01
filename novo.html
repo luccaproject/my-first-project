@@ -10,172 +10,259 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- Configuração Tailwind para cores personalizadas se necessário -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-black': '#1a1a1a',
+                        'brand-gray': '#f4f4f4',
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+
     <!-- Estilos -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap');
         
         h1, h2, h3 { font-family: 'Playfair Display', serif; }
         body { font-family: 'Lato', sans-serif; }
         
         .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
         #imageModal { z-index: 100; }
         
+        /* Loader Elegante */
         .loader {
-            border: 3px solid #f3f3f3;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
             border-radius: 50%;
-            border-top: 3px solid #333;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Estilo da Aba Ativa */
-        .tab-active {
-            border-bottom: 2px solid #111827; /* gray-900 */
-            color: #111827;
-            font-weight: 700;
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        /* Estilo da Aba Inativa */
-        .tab-inactive {
-            color: #6b7280; /* gray-500 */
-            border-bottom: 2px solid transparent;
-        }
-        .tab-inactive:hover {
-            color: #374151; /* gray-700 */
+
+        /* Input Customizado */
+        .custom-input:focus-within {
+            border-color: #1a1a1a;
+            background-color: #fff;
         }
     </style>
 </head>
-<body id="main-body" class="flex flex-col min-h-screen bg-gray-50 text-gray-800 transition-all duration-500">
+<body id="main-body" class="flex flex-col min-h-screen bg-[#f8f9fa] text-gray-800 antialiased selection:bg-gray-900 selection:text-white">
 
-    <!-- SEÇÃO 1: CONTAINER DE ACESSO -->
-    <div id="login-section" class="flex-grow flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl fade-in">
+    <!-- SEÇÃO 1: CONTAINER DE ACESSO (LOGIN/CADASTRO) -->
+    <div id="login-section" class="flex-grow flex items-center justify-center p-4 relative overflow-hidden">
+        
+        <!-- Elemento Decorativo de Fundo -->
+        <div class="absolute inset-0 z-0 opacity-5">
+            <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover grayscale">
+        </div>
+
+        <div class="w-full max-w-md bg-white/80 backdrop-blur-xl p-8 md:p-10 rounded-2xl shadow-soft fade-in relative z-10 border border-white/50">
             
-            <div class="text-center mb-6">
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
-                <p class="text-gray-500">Acesse sua coleção exclusiva.</p>
+            <div class="text-center mb-8">
+                <div class="w-12 h-1 bg-gray-900 mx-auto mb-6"></div>
+                <h1 class="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">Bem-vindo</h1>
+                <p class="text-gray-500 font-light text-lg">Acesse sua coleção exclusiva.</p>
             </div>
 
-            <!-- NAVEGAÇÃO POR ABAS -->
-            <div class="flex mb-6 border-b border-gray-200">
-                <button id="tab-btn-login" onclick="switchTab('login')" class="flex-1 pb-2 text-center transition-colors tab-active">
+            <!-- NAVEGAÇÃO POR ABAS (Estilo Moderno) -->
+            <div class="flex p-1 bg-gray-100 rounded-lg mb-8 relative">
+                <button id="tab-btn-login" onclick="switchTab('login')" class="flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-300 bg-white text-gray-900 shadow-sm">
                     Login
                 </button>
-                <button id="tab-btn-register" onclick="switchTab('register')" class="flex-1 pb-2 text-center transition-colors tab-inactive">
+                <button id="tab-btn-register" onclick="switchTab('register')" class="flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-300 text-gray-500 hover:text-gray-700">
                     Cadastro
                 </button>
             </div>
 
-            <!-- FORMULÁRIO DE LOGIN (Apenas Nome e Senha) -->
-            <form id="login-form" class="space-y-4" onsubmit="event.preventDefault()">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
-                    <input type="text" id="login-nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Seu nome">
+            <!-- FORMULÁRIO DE LOGIN -->
+            <form id="login-form" class="space-y-5" onsubmit="event.preventDefault()">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Nome Completo</label>
+                    <input type="text" id="login-nome" required 
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400" 
+                        placeholder="Ex: Ana Silva">
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
-                    <input type="password" id="login-senha" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Sua senha">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Senha</label>
+                    <input type="password" id="login-senha" required 
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400" 
+                        placeholder="••••••••">
                 </div>
 
-                <button type="submit" id="btn-login" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2 mt-4">
-                    <span>Entrar</span>
+                <button type="submit" id="btn-login" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-3.5 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex justify-center items-center gap-2 mt-2">
+                    <span>Entrar na Galeria</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
             </form>
 
-            <!-- FORMULÁRIO DE CADASTRO (Completo) -->
+            <!-- FORMULÁRIO DE CADASTRO -->
             <form id="register-form" class="space-y-4 hidden" onsubmit="event.preventDefault()">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
-                    <input type="text" id="reg-nome" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Seu nome">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Nome Completo</label>
+                    <input type="text" id="reg-nome" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 outline-none transition-all placeholder-gray-400" placeholder="Seu nome">
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Telefone</label>
-                    <input type="tel" id="reg-telefone" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="(00) 00000-0000">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Telefone</label>
+                    <input type="tel" id="reg-telefone" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 outline-none transition-all placeholder-gray-400" placeholder="(00) 00000-0000">
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">E-mail</label>
-                    <input type="email" id="reg-email" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="seu@email.com">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">E-mail</label>
+                    <input type="email" id="reg-email" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 outline-none transition-all placeholder-gray-400" placeholder="seu@email.com">
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
-                    <input type="password" id="reg-senha" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-800 outline-none transition bg-gray-50" placeholder="Crie uma senha">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Senha</label>
+                    <input type="password" id="reg-senha" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 outline-none transition-all placeholder-gray-400" placeholder="Crie uma senha">
                 </div>
 
-                <button type="submit" id="btn-register" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-lg transition transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2 mt-4">
-                    <span>Cadastrar</span>
+                <button type="submit" id="btn-register" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-3.5 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex justify-center items-center gap-2 mt-2">
+                    <span>Criar Conta</span>
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
                 </button>
             </form>
             
             <!-- Área de Mensagem de Erro -->
-            <div id="error-msg" class="mt-4 p-4 bg-red-50 text-red-800 rounded-lg text-sm hidden border border-red-200 text-left"></div>
+            <div id="error-msg" class="mt-6 p-4 bg-red-50 text-red-900 rounded-lg text-sm hidden border border-red-100 text-left fade-in"></div>
+        </div>
+        
+        <div class="absolute bottom-4 text-gray-400 text-xs text-center w-full z-10">
+            &copy; 2024 Gallery Experience
         </div>
     </div>
 
     <!-- SEÇÃO 2: GALERIA -->
     <div id="gallery-section" class="hidden flex-col flex-grow w-full fade-in">
-        <header class="relative bg-gray-900 text-white py-24 mb-12">
+        <header class="relative bg-gray-900 text-white py-32 mb-16">
             <div class="absolute inset-0 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover opacity-40">
-                <div class="absolute inset-0 bg-gradient-to-b from-gray-900/60 via-gray-900/40 to-gray-50"></div>
+                <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover opacity-30 transform scale-105">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#f8f9fa]"></div>
             </div>
+            
             <div class="relative container mx-auto px-4 text-center z-10">
-                <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight drop-shadow-xl text-white">Minha Coleção</h1>
-                <p id="welcome-message" class="text-gray-200 text-xl md:text-2xl font-light max-w-2xl mx-auto drop-shadow-md"></p>
-                <div class="mt-8 w-24 h-1 bg-blue-500 mx-auto rounded-full shadow-lg"></div>
+                <span class="inline-block py-1 px-3 border border-white/20 rounded-full text-xs font-bold tracking-widest uppercase mb-6 bg-white/5 backdrop-blur-sm">Coleção Privada</span>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white">Minha Coleção</h1>
+                <p id="welcome-message" class="text-gray-200 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed opacity-90"></p>
             </div>
         </header>
 
-        <main class="flex-grow container mx-auto px-4 mb-12 relative z-10">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                <!-- Imagens -->
-                <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Natureza</p></div>
+        <main class="flex-grow container mx-auto px-4 md:px-8 mb-20 relative z-10 -mt-20">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                
+                <!-- Card 1 -->
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
+                     data-src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                     <!-- Moldura Branca (Padding interno) -->
+                    <div class="absolute inset-2 border border-white/10 z-20 pointer-events-none transition-opacity duration-300 opacity-50 group-hover:opacity-100"></div>
+                    
+                    <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Outdoor</span>
+                        <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Natureza</p>
+                    </div>
                 </div>
-                <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Urbano</p></div>
+
+                <!-- Card 2 -->
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
+                     data-src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">City Life</span>
+                        <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Urbano</p>
+                    </div>
                 </div>
-                <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Equipamento</p></div>
+
+                <!-- Card 3 -->
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
+                     data-src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Tools</span>
+                        <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Equipamento</p>
+                    </div>
                 </div>
-                <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Viagens</p></div>
+
+                <!-- Card 4 -->
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
+                     data-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Travel</span>
+                        <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Viagens</p>
+                    </div>
                 </div>
-                <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Selva</p></div>
+
+                <!-- Card 5 -->
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
+                     data-src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Wild</span>
+                        <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Selva</p>
+                    </div>
                 </div>
-                <div class="group image-card relative overflow-hidden rounded-xl shadow-lg h-80 cursor-pointer" data-src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
-                    <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6"><p class="text-white font-bold text-lg">Lifestyle</p></div>
+
+                <!-- Card 6 -->
+                <div class="group image-card relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500 h-[400px] cursor-pointer" 
+                     data-src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
+                    <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         class="w-full h-full object-cover transform transition duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/80 text-xs font-bold tracking-widest uppercase mb-1 transform translate-y-4 group-hover:translate-y-0 transition duration-500">Daily</span>
+                        <p class="text-white font-serif text-3xl italic transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-75">Lifestyle</p>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <footer class="bg-gray-900 text-white py-12 mt-auto relative z-10">
+        <footer class="bg-white border-t border-gray-100 text-gray-800 py-12 mt-auto relative z-10">
             <div class="container mx-auto px-4 flex flex-col items-center justify-center">
-                <h3 id="footer-name" class="text-2xl font-bold mb-2 font-serif">Convidado</h3>
-                <p class="text-gray-400 mb-6 text-sm">© 2024 Todos os direitos reservados.</p>
+                <div class="w-8 h-8 bg-gray-900 rounded-full mb-4"></div>
+                <h3 id="footer-name" class="text-2xl font-bold mb-2 font-serif text-gray-900">Convidado</h3>
+                <p class="text-gray-400 mb-6 text-sm">© 2024 Gallery Experience. Todos os direitos reservados.</p>
                 <div class="flex space-x-6">
-                    <button onclick="logout()" class="hover:text-red-400 transition transform hover:-translate-y-1 border-l border-gray-600 pl-4 flex items-center gap-2">
-                        <i data-lucide="log-out" class="w-5 h-5"></i> Sair
+                    <button onclick="logout()" class="group flex items-center gap-2 px-6 py-2 rounded-full border border-gray-200 hover:border-red-200 hover:bg-red-50 transition-all duration-300">
+                        <span class="text-sm font-medium text-gray-600 group-hover:text-red-600 transition-colors">Sair da Conta</span>
+                        <i data-lucide="log-out" class="w-4 h-4 text-gray-400 group-hover:text-red-500"></i>
                     </button>
                 </div>
             </div>
         </footer>
     </div>
 
-    <!-- MODAL -->
-    <div id="imageModal" class="fixed inset-0 hidden items-center justify-center bg-black/95 backdrop-blur-sm transition-all duration-300 ease-in-out opacity-0 p-4">
-        <button id="closeModalBtn" class="absolute top-4 right-4 text-white/70 hover:text-white z-20 transition"><i data-lucide="x" class="w-10 h-10"></i></button>
-        <div id="modalImageContainer" class="relative max-w-6xl w-full h-full flex items-center justify-center transition-all duration-300 ease-in-out transform scale-95">
-            <img id="fullImage" src="" alt="Zoom" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl">
+    <!-- MODAL (Lightbox Refinado) -->
+    <div id="imageModal" class="fixed inset-0 hidden items-center justify-center bg-white/95 backdrop-blur-md transition-all duration-500 ease-in-out opacity-0 p-4 md:p-12">
+        <button id="closeModalBtn" class="absolute top-6 right-6 text-gray-400 hover:text-gray-900 z-20 transition transform hover:rotate-90 duration-300">
+            <i data-lucide="x" class="w-10 h-10"></i>
+        </button>
+        <div id="modalImageContainer" class="relative w-full h-full flex items-center justify-center transition-all duration-500 ease-out transform scale-95 shadow-2xl">
+            <img id="fullImage" src="" alt="Zoom" class="max-h-full max-w-full object-contain shadow-soft">
         </div>
     </div>
 
@@ -197,7 +284,6 @@
 
         let _supabase = null;
 
-        // Inicializa o cliente do Supabase
         try {
             if (typeof supabase === 'undefined') {
                 console.error("Erro: A biblioteca do Supabase não carregou.");
@@ -214,14 +300,12 @@
 
         lucide.createIcons();
         
-        // ELEMENTOS DO DOM
         const loginSection = document.getElementById('login-section');
         const gallerySection = document.getElementById('gallery-section');
         const welcomeMessage = document.getElementById('welcome-message');
         const footerName = document.getElementById('footer-name');
         const errorMsg = document.getElementById('error-msg');
         
-        // Elementos das Abas e Forms
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
         const tabBtnLogin = document.getElementById('tab-btn-login');
@@ -229,48 +313,58 @@
         const btnLogin = document.getElementById('btn-login');
         const btnRegister = document.getElementById('btn-register');
 
-        // FUNÇÃO PARA TROCAR ABAS
+        // FUNÇÃO DE ABAS REFINADA
         function switchTab(tab) {
-            errorMsg.classList.add('hidden'); // Limpa erros ao trocar
+            errorMsg.classList.add('hidden');
             if (tab === 'login') {
                 loginForm.classList.remove('hidden');
                 registerForm.classList.add('hidden');
                 
-                tabBtnLogin.classList.add('tab-active');
-                tabBtnLogin.classList.remove('tab-inactive');
-                tabBtnRegister.classList.remove('tab-active');
-                tabBtnRegister.classList.add('tab-inactive');
+                // Estilo Ativo (Branco com sombra)
+                tabBtnLogin.classList.remove('text-gray-500', 'hover:text-gray-700');
+                tabBtnLogin.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                
+                // Estilo Inativo (Transparente)
+                tabBtnRegister.classList.add('text-gray-500', 'hover:text-gray-700');
+                tabBtnRegister.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
             } else {
                 loginForm.classList.add('hidden');
                 registerForm.classList.remove('hidden');
                 
-                tabBtnLogin.classList.remove('tab-active');
-                tabBtnLogin.classList.add('tab-inactive');
-                tabBtnRegister.classList.add('tab-active');
-                tabBtnRegister.classList.remove('tab-inactive');
+                tabBtnRegister.classList.remove('text-gray-500', 'hover:text-gray-700');
+                tabBtnRegister.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                
+                tabBtnLogin.classList.add('text-gray-500', 'hover:text-gray-700');
+                tabBtnLogin.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
             }
         }
 
         function setLoading(btn, isLoading, textNormal) {
             if (isLoading) {
                 btn.disabled = true;
-                btn.innerHTML = `<div class="loader"></div> <span>Processando...</span>`;
+                btn.innerHTML = `<div class="loader"></div>`;
             } else {
                 btn.disabled = false;
-                btn.innerHTML = `<span>${textNormal}</span>`;
+                btn.innerHTML = `<span>${textNormal}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+                lucide.createIcons();
             }
         }
 
         function loadGalleryScreen(nomeUsuario) {
-            welcomeMessage.innerHTML = `Olá, <strong>${nomeUsuario}</strong>. Esta é sua curadoria exclusiva.`;
+            // Animação de entrada suave
+            welcomeMessage.innerHTML = `Olá, <strong class="text-white">${nomeUsuario}</strong>. Bem-vindo à sua curadoria.`;
             footerName.textContent = nomeUsuario;
+            
             loginSection.classList.add('hidden');
             gallerySection.classList.remove('hidden');
             gallerySection.classList.add('flex');
+            
+            // Scroll suave para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
             lucide.createIcons(); 
         }
 
-        // Verifica sessão anterior
         const sessaoLocal = localStorage.getItem('usuarioSessao');
         if (sessaoLocal) {
             try {
@@ -279,138 +373,95 @@
             } catch(e) { localStorage.removeItem('usuarioSessao'); }
         }
 
-        // ==========================================================
-        //  LÓGICA DE LOGIN (NOME E SENHA)
-        // ==========================================================
+        // LÓGICA DE LOGIN
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             errorMsg.classList.add('hidden');
-            errorMsg.textContent = "";
-
-            if (!_supabase) {
-                showConfigError(); return;
-            }
+            
+            if (!_supabase) { showConfigError(); return; }
 
             const nome = document.getElementById('login-nome').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
 
-            setLoading(btnLogin, true, "Entrar");
+            setLoading(btnLogin, true);
 
             try {
-                // Busca usuário pelo NOME
                 const { data: usuarios, error: erroBusca } = await _supabase
                     .from('usuarios')
                     .select('*')
-                    .eq('nome', nome); // Busca exata pelo nome
+                    .eq('nome', nome);
 
                 if (erroBusca) throw erroBusca;
 
                 if (!usuarios || usuarios.length === 0) {
-                    throw new Error("Usuário não encontrado. Verifique o nome ou cadastre-se.");
+                    throw new Error("Usuário não encontrado.");
                 }
 
-                // Pega o primeiro usuário encontrado (caso haja nomes duplicados, pega o primeiro)
                 const usuario = usuarios[0];
-
-                // Verifica Senha
                 if (usuario.senha !== senha) {
                     throw new Error("Senha incorreta.");
                 }
 
-                // Sucesso
                 localStorage.setItem('usuarioSessao', JSON.stringify(usuario));
                 loadGalleryScreen(usuario.nome);
 
             } catch (error) {
                 handleError(error);
             } finally {
-                setLoading(btnLogin, false, "Entrar");
+                setLoading(btnLogin, false, "Entrar na Galeria");
             }
         });
 
-        // ==========================================================
-        //  LÓGICA DE CADASTRO (NOME, TELEFONE, EMAIL, SENHA)
-        // ==========================================================
+        // LÓGICA DE CADASTRO
         registerForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             errorMsg.classList.add('hidden');
-            errorMsg.textContent = "";
-
-            if (!_supabase) {
-                showConfigError(); return;
-            }
+            
+            if (!_supabase) { showConfigError(); return; }
 
             const nome = document.getElementById('reg-nome').value.trim();
             const telefone = document.getElementById('reg-telefone').value.trim();
             const email = document.getElementById('reg-email').value.trim();
             const senha = document.getElementById('reg-senha').value.trim();
 
-            setLoading(btnRegister, true, "Cadastrar");
+            setLoading(btnRegister, true);
 
             try {
-                // Verifica se e-mail já existe (para evitar duplicação)
                 const { data: checkEmail } = await _supabase
-                    .from('usuarios')
-                    .select('id')
-                    .eq('email', email);
+                    .from('usuarios').select('id').eq('email', email);
 
                 if (checkEmail && checkEmail.length > 0) {
-                    throw new Error("Este e-mail já está cadastrado. Tente fazer Login.");
+                    throw new Error("E-mail já cadastrado.");
                 }
 
-                // Insere novo usuário
                 const { data: novoUsuario, error: erroInsert } = await _supabase
                     .from('usuarios')
-                    .insert([{ 
-                        nome: nome, 
-                        telefone: telefone, 
-                        email: email,
-                        senha: senha
-                    }])
-                    .select()
-                    .single();
+                    .insert([{ nome, telefone, email, senha }])
+                    .select().single();
 
                 if (erroInsert) throw erroInsert;
 
-                // Sucesso
                 localStorage.setItem('usuarioSessao', JSON.stringify(novoUsuario));
                 loadGalleryScreen(novoUsuario.nome);
 
             } catch (error) {
                 handleError(error);
             } finally {
-                setLoading(btnRegister, false, "Cadastrar");
+                setLoading(btnRegister, false, "Criar Conta");
             }
         });
 
-        // Funções Auxiliares de Erro
         function showConfigError() {
-            errorMsg.innerHTML = "<strong>Erro de Configuração:</strong><br>As chaves do Supabase estão inválidas.";
+            errorMsg.innerHTML = "<strong>Configuração Pendente</strong><br>Adicione as chaves do Supabase no código.";
             errorMsg.classList.remove('hidden');
         }
 
         function handleError(error) {
-            console.error("Erro Supabase:", error);
-            let titulo = "Ocorreu um erro";
-            let msg = error.message || JSON.stringify(error);
-            let solucao = "";
-
-            if (msg.includes('relation "usuarios" does not exist')) {
-                titulo = "Tabela não encontrada";
-                solucao = "A tabela 'usuarios' não existe no banco.";
-            } else if (msg.includes('column') && msg.includes('does not exist')) {
-                titulo = "Coluna faltando";
-                solucao = "Verifique se todas as colunas (nome, telefone, email, senha) existem no Supabase.";
-            } else if (msg.includes("Senha incorreta") || msg.includes("Usuário não encontrado")) {
-                titulo = "Acesso Negado";
-                solucao = msg;
-            }
-
-            errorMsg.innerHTML = `
-                <strong class="text-red-900 block mb-1">${titulo}</strong>
-                <span class="block mb-2">${solucao || "Detalhe do erro:"}</span>
-                <span class="block text-xs text-red-500 border-t border-red-200 pt-1 mt-1 font-mono">${msg}</span>
-            `;
+            console.error(error);
+            let msg = error.message || "Erro desconhecido";
+            if (msg.includes('relation')) msg = "Tabela 'usuarios' não encontrada no banco.";
+            
+            errorMsg.innerHTML = `<span class="font-bold">Atenção:</span> ${msg}`;
             errorMsg.classList.remove('hidden');
         }
 
